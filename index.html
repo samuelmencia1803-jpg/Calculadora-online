@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extrem paq calculadora</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #202b38;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .calculadora {
+        background: #333;
+        padding: 20px;
+        border-radius: 15px;
+        width: 300px;
+        box-shadow: 0 5px 20px black;
+    }
+
+    #pantalla {
+        width: 100%;
+        height: 65px;
+        box-sizing: border-box;
+        font-size: 30px;
+        text-align: right;
+        padding: 10px;
+        margin-bottom: 15px;
+        background: #d9f5df;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .botones {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    button {
+        height: 60px;
+        font-size: 22px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        background: #eee;
+    }
+
+    button:hover {
+        background: #ccc;
+    }
+
+    .operador {
+        background: orange;
+        color: white;
+    }
+
+    .igual {
+        background: #19a85b;
+        color: white;
+    }
+
+    .borrar {
+        background: #e53935;
+        color: white;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="calculadora">
+
+    <input type="text" id="pantalla" value="" readonly>
+
+    <div class="botones">
+
+        <button class="borrar" onclick="limpiar()">C</button>
+        <button onclick="borrarUltimo()">⌫</button>
+        <button class="operador" onclick="elegirOperacion('/')">÷</button>
+        <button class="operador" onclick="elegirOperacion('*')">×</button>
+
+        <button onclick="agregar('7')">7</button>
+        <button onclick="agregar('8')">8</button>
+        <button onclick="agregar('9')">9</button>
+        <button class="operador" onclick="elegirOperacion('-')">−</button>
+
+        <button onclick="agregar('4')">4</button>
+        <button onclick="agregar('5')">5</button>
+        <button onclick="agregar('6')">6</button>
+        <button class="operador" onclick="elegirOperacion('+')">+</button>
+
+        <button onclick="agregar('1')">1</button>
+        <button onclick="agregar('2')">2</button>
+        <button onclick="agregar('3')">3</button>
+        <button class="igual" onclick="calcular()">=</button>
+
+        <button onclick="agregar('0')" style="grid-column: span 2">0</button>
+        <button onclick="agregar('.')">.</button>
+        <button onclick="limpiar()">AC</button>
+
+    </div>
+</div>
+
+<script>
+    let pantalla = document.getElementById("pantalla");
+    let numero1 = null;
+    let operador = null;
+    let nuevoNumero = true;
+
+    function agregar(valor) {
+        if (nuevoNumero) {
+            pantalla.value = valor === '.' ? '0.' : valor;
+            nuevoNumero = false;
+        } else {
+            if (valor === '.' && pantalla.value.includes('.')) return;
+
+            let digitos = pantalla.value.replace('.', '');
+
+            if (digitos.length >= 4 && valor !== '.') return;
+
+            pantalla.value += valor;
+        }
+    }
+
+    function elegirOperacion(op) {
+        numero1 = parseFloat(pantalla.value);
+        operador = op;
+        nuevoNumero = true;
+    }
+
+    function calcular() {
+        if (operador === null || nuevoNumero) return;
+
+        let numero2 = parseFloat(pantalla.value);
+        let resultado;
+
+        switch (operador) {
+            case '+':
+                resultado = numero1 + numero2;
+                break;
+            case '-':
+                resultado = numero1 - numero2;
+                break;
+            case '*':
+                resultado = numero1 * numero2;
+                break;
+            case '/':
+                if (numero2 === 0) {
+                    pantalla.value = "Error";
+                    operador = null;
+                    nuevoNumero = true;
+                    return;
+                }
+                resultado = numero1 / numero2;
+                break;
+        }
+
+        pantalla.value = String(Number(resultado.toFixed(8)));
+        operador = null;
+        nuevoNumero = true;
+    }
+
+    function limpiar() {
+        pantalla.value = "0";
+        numero1 = null;
+        operador = null;
+        nuevoNumero = true;
+    }
+
+    function borrarUltimo() {
+        if (nuevoNumero || pantalla.value === "Error") {
+            pantalla.value = "0";
+            nuevoNumero = true;
+            return;
+        }
+
+        pantalla.value = pantalla.value.slice(0, -1) || "";
+    }
+    
+document.addEventListener("keydown", function(event) {
+    const tecla = event.key;
+
+    // Números
+    if (/^[0-9]$/.test(tecla)) {
+        agregar(tecla);
+    }
+
+    // Operaciones
+    else if (tecla === "+") {
+        elegirOperacion("+");
+    }
+    else if (tecla === "-") {
+        elegirOperacion("-");
+    }
+    else if (tecla === "*") {
+        elegirOperacion("*");
+    }
+    else if (tecla === "/") {
+        event.preventDefault();
+        elegirOperacion("/");
+    }
+
+    // Resultado
+    else if (tecla === "Enter" || tecla === "=") {
+        event.preventDefault();
+        calcular();
+    }
+
+    // Borrar
+    else if (tecla === "Backspace") {
+        borrarUltimo();
+    }
+
+    // Limpiar
+    else if (tecla === "Escape") {
+        limpiar();
+    }
+
+    // Punto decimal
+    else if (tecla === ".") {
+        agregar(".");
+    }
+});
+
+</script>
+
+</body>
+</html>
